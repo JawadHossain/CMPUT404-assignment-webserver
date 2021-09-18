@@ -1,6 +1,7 @@
 #  coding: utf-8 
 import socketserver
 import pathlib
+import os
 
 # Copyright 2013 Jawad Hossain, Abram Hindle, Eddie Antonio Santos
 # 
@@ -40,25 +41,35 @@ class MyWebServer(socketserver.BaseRequestHandler):
             self.method = self.data[0]
             self.path = self.data[1]
 
-            # print (f"Got a request of: {self.method} {self.path}\n")
-            self.handlePath()
+            print (f"Got a request of: {self.method} {self.path}\n")
+            self.updatePath()
+
+            if (self.method == 'GET'):
+                # Method accepted
+
+                print(self.path)
+                print(self.pathExists())
+
+                if (self.pathSafe()):
+                    # 
+                        if self.pathExists():
+                            self.handleStatus200()
+                        else:
+                            # Send 404 File Not Found
+                            self.handleStatus404()
+                else:
+                    # Send 404 File Not Found
+                    self.handleStatus404()
 
 
-
-
-            # print(self.path)
-            # print(self.pathExists())
-
-
-            if self.pathExists():
-                self.handleStatus200()
             else:
-                self.handleStatus404()
+                # Send 405 Method Not Allowed
+                self.handleStatus405()
 
     '''
         Make path absolute and add index.html if path ends in '/' 
     '''
-    def handlePath(self):
+    def updatePath(self):
         # add index.html if path ends in '/'
         if self.path and self.path[-1] == '/':
             self.path += 'index.html'
@@ -74,6 +85,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
         return file.is_file()
 
     '''
+        Check if paths is safe
+        ref: https://security.openstack.org/guidelines/dg_using-file-paths.html
+    '''
+    def pathSafe(self):
+        basedir = f"{pathlib.Path().parent.resolve()}/{self.baseDirectory}"
+        return basedir == os.path.commonpath((basedir, self.path))
+
+    '''
         Send status 200 OK and resource
     '''
     def handleStatus200(self):
@@ -87,6 +106,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
     '''
     def handleStatus404(self):
         self.request.sendall(bytearray("HTTP/1.0 404 NOT FOUND\n\nFile Not Found",'utf-8'))
+    
+    '''
+        Send status 405 Method Not Allowed
+    '''
+    def handleStatus405(self):
+        self.request.sendall(bytearray("HTTP/1.0 405 Method Not Allowed\n\nMethod Not Allowed",'utf-8'))
 
 
 if __name__ == "__main__":
