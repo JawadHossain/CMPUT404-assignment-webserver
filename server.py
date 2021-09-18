@@ -29,6 +29,7 @@ import pathlib
 
 
 class MyWebServer(socketserver.BaseRequestHandler):
+    baseDirectory = 'www'
 
     
     def handle(self):
@@ -62,7 +63,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         if self.path and self.path[-1] == '/':
             self.path += 'index.html'
 
-        self.path = f"{pathlib.Path().parent.resolve()}/WWW{self.path}"
+        self.path = f"{pathlib.Path().parent.resolve()}/{self.baseDirectory}{self.path}"
 
     '''
         Check if path exists
