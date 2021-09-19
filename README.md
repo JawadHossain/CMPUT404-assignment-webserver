@@ -25,3 +25,4 @@ compatible) http://docs.python.org/2/library/socketserver.html
 # References
 
 https://security.openstack.org/guidelines/dg_using-file-paths.html
+https://www.tutorialspoint.com/How-to-find-the-mime-type-of-a-file-in-Python

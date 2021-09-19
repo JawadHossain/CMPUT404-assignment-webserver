@@ -1,5 +1,6 @@
 #  coding: utf-8 
 import socketserver
+import mimetypes
 import pathlib
 import os
 
@@ -97,15 +98,24 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
     '''
         If redirect not set send status 200 OK and resource
+        ref: https://www.tutorialspoint.com/How-to-find-the-mime-type-of-a-file-in-Python
     '''
     def handleFileOpen(self, redirect=False):
         if (redirect):
             self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {self.data[1] + '/'}",'utf-8'))
         else:
-            file = open(self.path)
-            content = file.read()
-            file.close()    
-            self.request.sendall(bytearray(f"HTTP/1.1 200 OK\n\n{content}",'utf-8'))
+            try:
+                # read file
+                file = open(self.path)
+                content = file.read()
+                file.close()    
+
+                # find mimetype
+                mimeType = mimetypes.MimeTypes().guess_type(self.path)[0]
+                self.request.sendall(bytearray(f"HTTP/1.1 200 OK\r\nContent-Type: {mimeType}\r\n\r\n{content}",'utf-8'))
+            except:
+                self.request.sendall(bytearray(f"HTTP/1.1 500 Internal Server Error\n\n",'utf-8'))
+
     
     '''
         Send status 404 Not Found
