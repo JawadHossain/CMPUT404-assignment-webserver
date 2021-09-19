@@ -33,7 +33,6 @@ import os
 class MyWebServer(socketserver.BaseRequestHandler):
     baseDirectory = 'www'
 
-    
     def handle(self):
         self.data = self.request.recv(1024).strip().decode('utf-8').split(' ')[0:2]
 
@@ -47,10 +46,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
             if (self.method == 'GET'):
                 # Method accepted
-
-                print(self.path)
-                print(self.pathExists())
-
                 if (self.pathSafe()):
                     # Check if path exists
                         if self.pathExists():
@@ -89,12 +84,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
         return file.is_file()
 
     '''
-        Check if paths is safe
+        Check if path is safe
         ref: https://security.openstack.org/guidelines/dg_using-file-paths.html
     '''
     def pathSafe(self):
         basedir = f"{pathlib.Path().parent.resolve()}/{self.baseDirectory}"
-        return basedir == os.path.commonpath((basedir, self.path))
+        return basedir == os.path.commonpath((basedir, os.path.abspath(self.path)))
 
     '''
         If redirect not set send status 200 OK and resource
