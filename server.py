@@ -51,9 +51,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 print(self.pathExists())
 
                 if (self.pathSafe()):
-                    # 
+                    # Check if path exists
                         if self.pathExists():
-                            self.handleStatus200()
+                            self.handleFileOpen()
+                        elif ( pathlib.Path(self.path + '/').is_dir() ):
+                            # Directory exists. Send 301 Moved Permanently and redirect
+                            self.handleFileOpen(True)
                         else:
                             # Send 404 File Not Found
                             self.handleStatus404()
@@ -93,25 +96,28 @@ class MyWebServer(socketserver.BaseRequestHandler):
         return basedir == os.path.commonpath((basedir, self.path))
 
     '''
-        Send status 200 OK and resource
+        If redirect not set send status 200 OK and resource
     '''
-    def handleStatus200(self):
-        file = open(self.path)
-        content = file.read()
-        file.close()
-        self.request.sendall(bytearray(f"HTTP/1.0 200 OK\n\n{content}",'utf-8'))
+    def handleFileOpen(self, redirect=False):
+        if (redirect):
+            self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {self.data[1] + '/'}",'utf-8'))
+        else:
+            file = open(self.path)
+            content = file.read()
+            file.close()    
+            self.request.sendall(bytearray(f"HTTP/1.1 200 OK\n\n{content}",'utf-8'))
     
     '''
         Send status 404 Not Found
     '''
     def handleStatus404(self):
-        self.request.sendall(bytearray("HTTP/1.0 404 NOT FOUND\n\nFile Not Found",'utf-8'))
+        self.request.sendall(bytearray("HTTP/1.1 404 NOT FOUND\n\nFile Not Found",'utf-8'))
     
     '''
         Send status 405 Method Not Allowed
     '''
     def handleStatus405(self):
-        self.request.sendall(bytearray("HTTP/1.0 405 Method Not Allowed\n\nMethod Not Allowed",'utf-8'))
+        self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\n\nMethod Not Allowed",'utf-8'))
 
 
 if __name__ == "__main__":
