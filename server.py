@@ -97,7 +97,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
     '''
     def handleFileOpen(self, redirect=False):
         if (redirect):
-            self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {self.data[1] + '/'}",'utf-8'))
+            self.request.sendall(bytearray(f"HTTP/1.1 301 Moved Permanently\r\nLocation: {self.data[1]}/\r\n\r\nMoved Permanently",'utf-8'))
         else:
             try:
                 # read file
@@ -109,20 +109,20 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 mimeType = mimetypes.MimeTypes().guess_type(self.path)[0]
                 self.request.sendall(bytearray(f"HTTP/1.1 200 OK\r\nContent-Type: {mimeType}\r\n\r\n{content}",'utf-8'))
             except:
-                self.request.sendall(bytearray(f"HTTP/1.1 500 Internal Server Error\n\n",'utf-8'))
+                self.request.sendall(bytearray(f"HTTP/1.1 500 Internal Server Error\r\n\r\n",'utf-8'))
 
     
     '''
         Send status 404 Not Found
     '''
     def handleStatus404(self):
-        self.request.sendall(bytearray("HTTP/1.1 404 NOT FOUND\n\nFile Not Found",'utf-8'))
+        self.request.sendall(bytearray("HTTP/1.1 404 NOT FOUND\r\n\r\nFile Not Found",'utf-8'))
     
     '''
         Send status 405 Method Not Allowed
     '''
     def handleStatus405(self):
-        self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\n\nMethod Not Allowed",'utf-8'))
+        self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n\r\nMethod Not Allowed",'utf-8'))
 
 
 if __name__ == "__main__":
