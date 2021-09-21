@@ -11,7 +11,7 @@ Make a simple webserver.
 Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
 
 server.py contains contributions from:
-
+-   Jawad Hossain
 -   Abram Hindle
 -   Eddie Antonio Santos
 -   Jackson Z Chang
